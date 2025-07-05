@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Resume Analyzer</title>
+  <style>
+    :root {
+      --bg-light: #ffffff;
+      --text-light: #222;
+      --bg-dark: #121212;
+      --text-dark: #f0f0f0;
+      --accent: #00c9a7;
+      --drop-bg-light: #f0f9ff;
+      --drop-bg-dark: #1a1a1a;
+      --drop-border: #00c9a7;
+      --feedback-bg: #f7f7f7;
+      --feedback-text: #222;
+      --feedback-border: #ddd;
+    }
+
+    body.dark {
+      --bg-light: #121212;
+      --text-light: #f0f0f0;
+      --feedback-bg: #1e1e1e;
+      --feedback-text: #f5f5f5;
+      --feedback-border: #444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      /* background-image: url('https://cdn.pixabay.com/photo/2023/02/06/17/59/ai-generated-7772478_1280.jpg'); */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      backdrop-filter: blur(4px);
+      transition: background-color 0.3s, color 0.3s;
+      min-height: 90vh;
+    }
+
+    .header{
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: end;
+    }
+    h3{
+      padding: 0px 25px 0px 0px;
+      text-decoration: underline 2px #00c9a7;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s;
+      /* min-height: 100vh; */
+    }
+
+    body.dark .container {
+      background: rgba(18, 18, 18, 0.9);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+      margin-left: 10px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "🌞";
+      height: 26px;
+      width: 26px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 26px;
+      font-size: 16px;
+    }
+
+    input:checked+.slider {
+      background-color: #00c9a7;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(30px);
+      content: "🌙";
+    }
+
+    .drop-zone {
+      border: 3px dashed var(--drop-border);
+      padding: 30px;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: var(--drop-bg-light);
+      color: #0077aa;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    body.dark .drop-zone {
+      background-color: var(--drop-bg-dark);
+      color: #4fd1c5;
+    }
+
+    .drop-zone.dragover {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .score {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .badge {
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: white;
+      display: inline-block;
+    }
+
+    .green {
+      background-color: #28a745;
+    }
+
+    .yellow {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .red {
+      background-color: #dc3545;
+    }
+
+    .feedback {
+      white-space: pre-wrap;
+      background: var(--feedback-bg);
+      color: var(--feedback-text);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid var(--feedback-border);
+      transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+
+    .loading,
+    .error {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .loading {
+      color: #007bff;
+    }
+
+    .error {
+      color: red;
+    }
+
+    #emojiStars {
+      font-size: 24px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h3>Developed By Sanket</h3>
+  </div>
+  <div class="container">
+    <div class="theme-toggle">
+      <label class="switch">
+        <input type="checkbox" id="themeSwitch" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <h1>📄 Resume Analyzer</h1>
+
+    <div id="dropZone" class="drop-zone">
+      Drag and drop your PDF resume here or click to select a file
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf" style="display: none;" />
+
+    <button id="uploadBtn">Upload & Analyze</button>
+
+    <div id="loading" class="loading" style="display: none;">⏳ Please wait, analyzing your resume...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="result" style="display: none;">
+      <div class="score">
+        Resume Score: <span id="scoreBadge" class="badge">...</span>
+        <div id="emojiStars"></div>
+      </div>
+      <div class="feedback" id="feedbackText"></div>
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const themeSwitch = document.getElementById('themeSwitch');
+    let selectedFile = null;
+
+    // Theme: Load from localStorage
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+      themeSwitch.checked = true;
+    }
+
+    themeSwitch.addEventListener('change', () => {
+      document.body.classList.toggle('dark');
+      const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+      localStorage.setItem('theme', theme);
+    });
+
+    // Drag & Drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') {
+        selectedFile = file;
+        dropZone.textContent = `✔️ Selected: ${file.name}`;
+      } else {
+        showError("❌ Only PDF files are allowed.");
+      }
+    });
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file && file.type === 'application/pdf') {
+        selectedFile = file;
+        dropZone.textContent = `✔️ Selected: ${file.name}`;
+      } else {
+        showError("❌ Only PDF files are allowed.");
+        fileInput.value = '';
+      }
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) {
+        showError("❌ Please select a PDF file to analyze.");
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('result').style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const response = await fetch('http://localhost:8080/api/resume/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showError("❌ " + (result.message || "An error occurred during upload."));
+          return;
+        }
+
+        const score = result.score;
+        const feedback = result.feedback;
+
+        const badge = document.getElementById('scoreBadge');
+        badge.textContent = `${score} / 100`;
+
+        const stars = getEmojiStars(score);
+        document.getElementById('emojiStars').innerHTML = stars;
+
+        if (score >= 80) badge.className = 'badge green';
+        else if (score >= 60) badge.className = 'badge yellow';
+        else badge.className = 'badge red';
+
+        document.getElementById('feedbackText').textContent = feedback;
+        document.getElementById('result').style.display = 'block';
+
+      } catch (err) {
+        showError("❌ Something went wrong: " + err.message);
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    });
+
+    function showError(message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('result').style.display = 'none';
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function getEmojiStars(score) {
+      if (score >= 90) return '🌟🌟🌟🌟🌟 Excellent!';
+      if (score >= 80) return '🌟🌟🌟🌟 Great!';
+      if (score >= 70) return '🌟🌟🌟 Good!';
+      if (score >= 60) return '🌟🌟 Needs Improvement';
+      return '⭐ Poor';
+    }
+  </script>
+</body>
+
+</html>
